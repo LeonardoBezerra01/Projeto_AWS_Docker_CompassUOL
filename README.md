@@ -48,7 +48,7 @@ Este projeto tem como objetivo configurar uma arquitetura de aplicação WordPre
 - Acesse o console AWS e entre no serviço **EC2**.
 - No menu lateral esquerdo, na seção de **Rede e segurança**, selecione **Security Groups**.
 - Dentro de **Security Groups**, clique no botão **Criar grupo de segurança**.
-- Crie e configure os seguintes security groups usando a VPC criada anteriormente:
+- Crie e configure os seguintes grupos de segurança usando a VPC criada anteriormente:
 
     - #### Load Balancer - Regras de entrada
         | Tipo | Protocolo | Intervalo de portas |   Origem  |
@@ -84,20 +84,20 @@ Este projeto tem como objetivo configurar uma arquitetura de aplicação WordPre
 - Depois clique no botão **Personalizar**.
 - Execute a seguinte configuração: 
 
-    - #### Passo 1 - Configurações do sistema de arquivos:
+    - #### Etapa 1 - Configurações do sistema de arquivos:
         - No campo **Nome** digite "efs-docker".
         - Clique em **Próximo**.
 
-    - #### Passo 2 - Acesso à rede:
+    - #### Etapa 2 - Acesso à rede:
         - No campo **Virtual Private Cloud (VPC)** selecione a VPC que foi criada anteriormente.
-        - No campo **ID da sub-rede** selecione as subnets privadas de cada AZ.
+        - No campo **ID da sub-rede** selecione as sub-redes privadas de cada AZ.
         - No campo **Grupos de segurança** selecione o grupo "EFS" que foi criado anteriormente.
         - Clique em **Próximo**.
 
-    - #### Passo 3 - Política do sistema de arquivos - opcional:
+    - #### Etapa 3 - Política do sistema de arquivos - opcional:
         - Clique em **Próximo**.
         
-    - #### Passo 4 - Revisar e criar:
+    - #### Etapa 4 - Revisar e criar:
         - Revise e clique em **Criar** para finalizar.
 
 ---
@@ -109,6 +109,7 @@ Este projeto tem como objetivo configurar uma arquitetura de aplicação WordPre
     - Na seção **Opções do mecanismo** selecione **MySQL**.
     - Na seção **Modelos** selecione **Nível gratuito**.
     - Na seção **Configurações de credenciais** adicione uma *Senha principal" e confirme.
+    - Na seção **Configuração da instância**, no campo selecione o tipo "db.t3.micro".
     - Na seção **Conectividade**, no campo **Nuvem privada virtual (VPC)** selecione a VPC criada anteriormente.
     - No campo **Grupos de segurança da VPC existentes** selecione o grupo "RDS" que foi criado anteriormente.
     - Na seção **Configuração adicional**, no campo **Nome do banco de dados inicial** coloque o nome "DBdocker".
@@ -122,9 +123,8 @@ Este projeto tem como objetivo configurar uma arquitetura de aplicação WordPre
 - Dentro de **Load balancers** clique no botão **Criar load balancer**.
 - Em **Tipos de load balancer** clique em **Classic Load Balancer** e depois em **Criar**.
 - No campo **Nome do load balancer** digite "clb-wordpress".
-- No campo **Esquema** selecione a opção "Interno".
 - Na seção **Mapeamento de rede**, no campo **VPC** selecione a VPC criada anteriormente.
-- No campo **Mapeamentos** selecione as duas AZ's e suas respectivas subnets públicas.
+- No campo **Mapeamentos** selecione as duas AZ's e suas respectivas sub-redes públicas.
 - No campo de **Grupos de segurança** selecione o grupo "Load Balancer" que foi criado anteriormente.
 - Na seção **Verificações de integridade**, no campo **Caminho de ping** modifique o caminho para "/wp-admin/install.php".
 - Clique em **Criar load balancer** para finalizar.
@@ -150,7 +150,7 @@ Este projeto tem como objetivo configurar uma arquitetura de aplicação WordPre
 - No campo **Nome do modelo de execução** digite "me-wordpress".
 - No campo **Descrição da versão do modelo** digite "wordpress-docker".
 - Em **Imagens de aplicação e de sistema operacional** clique em **Início rápido**, depois clique em **Amazon Linux** e selecione a Amazon Linux 2023 AMI.
-- No campo **Tipo de instância** selecione o tipo t2.micro.
+- No campo **Tipo de instância** selecione o tipo "t2.micro".
 - No campo **Nome do par de chaves** selecione o par de chaves criado anteriormente.
 - Em **Configurações de rede**, no campo **Grupos de segurança** selecione o grupo "EC2 Web Server" que foi criado anteriormente.
 - Em **Tags de recurso** clique em **Adicionar nova tag** e adicione as tags de **Chave** "Name", "CostCenter" e "Project" para os **Tipos de recurso** "Instâncias" e "Volumes".
@@ -206,53 +206,58 @@ docker-compose -f /mnt/efs/docker-compose.yaml up -d
 
 ### Criando Auto Scaling Group:
 - Acesse o console AWS e entre no serviço **EC2**.
-- No menu lateral esquerdo, na seção de **Auto Scaling** selecione **Auto Scaling Groups**.
-- Dentro de **Auto Scaling groups** clique no botão **Create Auto Scaling group**.
+- No menu lateral esquerdo, na seção de **Auto Scaling** selecione **Grupos Auto Scaling**.
+- Dentro de **Grupos Auto Scaling** clique no botão **Criar grupo do Auto Scaling**.
 - Execute a seguinte configuração:
-    - #### Step 1 - Choose launch template:
-        - No campo **Auto Scaling group name** digite "ws-asg".
-        - Na seção **Launch template** selecione o template criado anteriormente.
-        - Clique em **Next**.
-    - #### Step 2 - Choose instance launch options:
-        - Na seção **Network**, no campo **VPC** selecione a VPC criada anteriormente.
-        - No campo **Availability Zones and subnets** selecione as duas subnets privadas criadas previamente.
-        - Clique em **Next**.
-    - #### Step 3 - Configure advanced options:
-        - Na seção **Load balancing** selecione **Attach to an existing load balancer**.
-        - Na seção **Attach to an existing load balancer** clique em **Choose from Classic Load Balancers** e selecione o load balancer criado anteriormente.
-        - Na seção **Health checks** marque a opção **Turn on Elastic Load Balancing health checks**.
-        - Clique em **Next**.
-    - #### Step 4 - Configure group size and scaling:
-        - No campo **Desired capacity** digite "2".
-        - Em **Scaling**, no campo **Min desired capacity** digite "2".
-        - No campo **Max desired capacity** digite "4".
-        - Em **Automatic scaling** selecione a opção **Target tracking scaling policy**
-        - No campo **Metric type** deixe selecionado **Average CPU utilization**.
-        - No campo **Target value** digite "75".
-        - Clique em **Next**.
-    - #### Steps 5, 6 e 7:
-        - Clique em **Next**.
-        - Clique em **Next**.
-        - Revise e clique em **Create Auto Scaling group** para finalizar.
+
+    - #### Etapa 1 - Escolher o modelo de execução:
+        - No campo **Nome do grupo do Auto Scaling** digite "asg-wordpress".
+        - Na seção **Modelo de execução** selecione o modelo criado anteriormente.
+        - Clique em **Próximo**.
+  
+    - #### Etapa 2 - Escolher as opções de execução de instância:
+        - Na seção **Rede**, no campo **VPC** selecione a VPC criada anteriormente.
+        - No campo **Zonas de disponibilidade e sub-redes** selecione as duas sub-redes privadas criadas previamente.
+        - Clique em **Próximo**.
+  
+    - #### Etapa 3 - Integrar com outros serviços:
+        - Na seção **Balanceamento de carga** selecione **Anexar a um balanceador de carga existente**.
+        - Na seção **Anexar a um balanceador de carga existente** clique em **Escolha entre Classic Load Balancers** e selecione o load balancer criado anteriormente.
+        - Na seção **Verificações de integridade** marque a opção **Ativar verificações de integridade do Elastic Load Balancing**.
+        - Clique em **Próximo**.
+  
+    - #### Etapa 4 - Configurar tamanho do grupo e ajuste de escala:
+        - No campo **Capacidade desejada** digite "2".
+        - Em **Escalabilidade**, no campo **Capacidade mínima desejada** digite "2".
+        - No campo **Capacidade máxima desejada** digite "4".
+        - Em **Escalabilidade automática** selecione a opção **Política de escalabilidade de rastreamento de destino**
+        - No campo **Tipo de métrica** deixe selecionado **Média de utilização da CPU**.
+        - No campo **Valor de objetivo** digite "75".
+        - Clique em **Próximo**.
+  
+    - #### Etapas 5, 6 e 7:
+        - Clique em **Próximo**.
+        - Clique em **Próximo**.
+        - Revise e clique em **Criar grupo do Auto Scaling** para finalizar.
 
 ---
 
 ### Configuração EC2 Instance Connect Endpoint:
 - Acesse o console AWS e entre no serviço **VPC**.
-- No menu lateral esquerdo, na seção de **Virtual private cloud** selecione **Endpoints**.
-- Dentro de **Endpoints** clique no botão **Create endpoint**.
+- No menu lateral esquerdo, na seção de **PrivateLink and Lattice** selecione **Endpoints**.
+- Dentro de **Endpoints** clique no botão **Criar endpoint**.
 - Altere as seguintes configurações:
-    - Em **Name tag** coloque o nome "ws-ep".
-    - Em **Service category** selecione **EC2 Instance Connect Endpoint**.
+    - Em **Etiqueta de nome** coloque o nome "endpoint-wordpress".
+    - Em **Tipo** selecione **Endpoint do EC2 Instance Connect**.
     - Em **VPC** selecione a VPC criada anteriormente.
-    - Em **Security groups** selecione o grupo "EC2 ICE" que foi criado anteriormente.
-    - Em **Subnet** selecione uma subnet privada que foi criada anteriormente.
-- Clique em **Create endpoint**.
+    - Em **Grupos de segurança** selecione o grupo "EC2 ICE" que foi criado anteriormente.
+    - Em **Sub-rede** selecione uma sub-rede privada que foi criada anteriormente.
+- Clique em **Criar endpoint**.
 
 ---
 
 ### Acesso e Teste:
-- Acesse o **DNS name** do **Load Balancer** através do navegador.
+- Acesse o **Nome do DNS** do **Load Balancer** através do navegador.
 - Na tela de instalação do **WordPress** escolha o idioma e cliquei em **Continuar**.
 - Na tela seguinte preencha os dados para criação de um usuário.
 - Clique em **Instalar WordPress** para finalizar.
