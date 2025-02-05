@@ -222,17 +222,17 @@ docker-compose -f /mnt/efs/docker-compose.yaml up -d
   
     - #### Etapa 3 - Integrar com outros serviços:
         - Na seção **Balanceamento de carga** selecione **Anexar a um balanceador de carga existente**.
-        - Na seção **Anexar a um balanceador de carga existente** clique em **Escolha entre Classic Load Balancers** e selecione o load balancer criado anteriormente.
-        - Na seção **Verificações de integridade** marque a opção **Ativar verificações de integridade do Elastic Load Balancing**.
+        - Na seção **Anexar a um balanceador de carga existente** clique em **Escolher entre Classic Load Balancers** e selecione o load balancer criado anteriormente.
+        - Na seção **Verificações de integridade** marque a opção **Ative as verificações de integridade do Elastic Load Balancing**.
         - Clique em **Próximo**.
   
     - #### Etapa 4 - Configurar tamanho do grupo e ajuste de escala:
         - No campo **Capacidade desejada** digite "2".
         - Em **Escalabilidade**, no campo **Capacidade mínima desejada** digite "2".
         - No campo **Capacidade máxima desejada** digite "4".
-        - Em **Escalabilidade automática** selecione a opção **Política de escalabilidade de rastreamento de destino**
+        - Em **Ajuste de escala automática** selecione a opção **Política de dimensionamento com monitoramento do objetivo**
         - No campo **Tipo de métrica** deixe selecionado **Média de utilização da CPU**.
-        - No campo **Valor de objetivo** digite "75".
+        - No campo **Valor de destino** digite "75".
         - Clique em **Próximo**.
   
     - #### Etapas 5, 6 e 7:
@@ -261,4 +261,9 @@ docker-compose -f /mnt/efs/docker-compose.yaml up -d
 - Na tela de instalação do **WordPress** escolha o idioma e cliquei em **Continuar**.
 - Na tela seguinte preencha os dados para criação de um usuário.
 - Clique em **Instalar WordPress** para finalizar.
- 
+
+ ---
+
+## Considerações finais
+
+Um projeto complexo na configuração de múltiplos serviços, focado em segurança para proteger dados, escalabilidade demandando planejamento, monitoramento crucial para otimização, documentação essencial para manutenção, e iteração gradual para evitar problemas complexos. A escolha de ferramentas e serviços AWS precisou ser estratégica, e o custo é influenciado pelas escolhas de recursos.
